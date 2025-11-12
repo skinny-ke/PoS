@@ -22,7 +22,7 @@ export function MyOrders() {
   // Filter orders for current user
   const userOrders = mockOrders.filter((order) => order.userId === user?.id);
 
-  const getStatusColor = (status: OrderStatus) => {
+  const getStatusColor = (status: string) => {
     const colors: Record<OrderStatus, string> = {
       PENDING: 'bg-yellow-100 text-yellow-800',
       CONFIRMED: 'bg-blue-100 text-blue-800',
