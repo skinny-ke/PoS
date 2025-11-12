@@ -45,7 +45,7 @@ export default async function AdminPage() {
   ])
 
   return (
-    <AdminLayout user={dbUser}>
+    <AdminLayout activeView="dashboard" onViewChange={() => {}}>
       <div className="space-y-6">
         {/* Page Header */}
         <div>

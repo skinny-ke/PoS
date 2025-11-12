@@ -39,16 +39,16 @@ function CustomerView({ onViewOrders }: CustomerViewProps) {
       const matchesSearch =
         searchQuery === '' ||
         product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        product.description.toLowerCase().includes(searchQuery.toLowerCase());
+        (product.description || '').toLowerCase().includes(searchQuery.toLowerCase());
 
       const matchesCategory =
-        selectedCategory === 'All Categories' || product.category === selectedCategory;
+        selectedCategory === 'All Categories' || product.category?.name === selectedCategory;
 
       return matchesSearch && matchesCategory;
     });
   }, [searchQuery, selectedCategory]);
 
-  const featuredProducts = mockProducts.filter((p) => p.featured);
+  const featuredProducts = mockProducts.filter((p) => p.category?.name && ['cat-1', 'cat-2'].includes(p.categoryId));
 
   return (
     <div className="min-h-screen bg-background">
@@ -345,7 +345,7 @@ function AppContent() {
   if (currentView === 'customer') {
     return (
       <div>
-        <CustomerView />
+        <CustomerView onViewOrders={() => {}} />
         {/* Admin Access Button */}
         <button
           onClick={() => setCurrentView('dashboard')}

@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: murimi-pos
+    env: node
+    plan: free
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    nodeVersion: 22.16.0
+    autoDeploy: true
