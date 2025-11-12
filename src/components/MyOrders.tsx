@@ -17,7 +17,7 @@ import { useAuth } from '../contexts/AuthContext';
 
 export function MyOrders() {
   const { user } = useAuth();
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [selectedOrder, setSelectedOrder] = useState<Sale | null>(null);
 
   // Filter orders for current user
   const userOrders = mockOrders.filter((order) => order.userId === user?.id);
