@@ -23,7 +23,7 @@ export function MyOrders() {
   const userOrders = mockOrders.filter((order) => order.userId === user?.id);
 
   const getStatusColor = (status: string) => {
-    const colors: Record<OrderStatus, string> = {
+    const colors: Record<string, string> = {
       PENDING: 'bg-yellow-100 text-yellow-800',
       CONFIRMED: 'bg-blue-100 text-blue-800',
       PROCESSING: 'bg-purple-100 text-purple-800',
@@ -34,7 +34,7 @@ export function MyOrders() {
     return colors[status];
   };
 
-  const getStatusIcon = (status: OrderStatus) => {
+  const getStatusIcon = (status: string) => {
     switch (status) {
       case 'PENDING':
         return <Clock className="w-4 h-4" />;
@@ -50,8 +50,8 @@ export function MyOrders() {
     }
   };
 
-  const getStatusProgress = (status: OrderStatus) => {
-    const progress: Record<OrderStatus, number> = {
+  const getStatusProgress = (status: string) => {
+    const progress: Record<string, number> = {
       PENDING: 20,
       CONFIRMED: 40,
       PROCESSING: 60,
@@ -123,7 +123,7 @@ export function MyOrders() {
 
                     {/* Items */}
                     <div className="space-y-3 mb-4">
-                      {order.items.slice(0, 2).map((item, idx) => (
+                      {order.items.slice(0, 2).map((item: any, idx: number) => (
                         <div key={idx} className="flex justify-between items-center">
                           <div>
                             <p className="text-sm">{item.product.name}</p>
@@ -188,7 +188,7 @@ export function MyOrders() {
         {/* Order Details Dialog */}
         <Dialog
           open={!!selectedOrder}
-          onOpenChange={(open) => !open && setSelectedOrder(null)}
+          onOpenChange={(open: boolean) => !open && setSelectedOrder(null)}
         >
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
