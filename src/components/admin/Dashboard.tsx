@@ -40,7 +40,7 @@ export function Dashboard() {
   ).slice(0, 5);
 
   // Low stock products
-  const lowStockProducts = mockProducts.filter((p) => p.stock < 100).slice(0, 5);
+  const lowStockProducts = mockProducts.filter((p) => p.stock && p.stock < 100).slice(0, 5);
 
   // Payment method distribution
   const paymentMethodData = [
@@ -253,9 +253,9 @@ export function Dashboard() {
                 <div key={product.id} className="flex items-center justify-between p-3 border rounded-lg">
                   <div className="flex-1">
                     <p className="text-sm">{product.name}</p>
-                    <p className="text-xs text-muted-foreground">{product.category}</p>
+                    <p className="text-xs text-muted-foreground">{product.category?.name}</p>
                   </div>
-                  <Badge variant="destructive">{product.stock} units</Badge>
+                  <Badge variant="destructive">{product.stock || 0} units</Badge>
                 </div>
               ))}
             </div>

@@ -20,7 +20,7 @@ import {
   SelectValue,
 } from '../ui/select';
 import { mockPayroll, PayrollRecord } from '../../lib/admin-mock-data';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 
 export function PayrollManagement() {
   const [payrollRecords, setPayrollRecords] = useState(mockPayroll);

@@ -81,10 +81,10 @@ export function AdminLayout({ children, activeView, onViewChange }: AdminLayoutP
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center">
-                <span className="text-white text-xs">{user?.name.charAt(0)}</span>
+                <span className="text-white text-xs">{(user?.firstName || user?.lastName || user?.email || 'U').charAt(0).toUpperCase()}</span>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm truncate">{user?.name}</p>
+                <p className="text-sm truncate">{user?.firstName && user?.lastName ? `${user.firstName} ${user.lastName}` : user?.email}</p>
                 <p className="text-xs text-muted-foreground truncate">{user?.role}</p>
               </div>
             </div>

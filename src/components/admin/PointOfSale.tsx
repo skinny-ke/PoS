@@ -10,7 +10,7 @@ import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { Label } from '../ui/label';
 import { mockProducts } from '../../lib/mock-data';
 import { Product, PaymentMethod, VAT_RATE } from '../../types';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
 
 interface POSItem {
@@ -37,7 +37,7 @@ export function PointOfSale() {
     if (existingItem) {
       updateQuantity(product.id, existingItem.quantity + 1);
     } else {
-      setCart([...cart, { product, quantity: 1, price: product.basePrice }]);
+      setCart([...cart, { product, quantity: 1, price: product.basePrice || product.retailPrice }]);
     }
     toast.success('Added to cart');
   };
@@ -147,7 +147,7 @@ export function PointOfSale() {
                     <p className="text-sm line-clamp-1">{product.name}</p>
                     <p className="text-xs text-muted-foreground">Stock: {product.stock}</p>
                     <p className="text-sm text-green-600 mt-1">
-                      KSh {product.basePrice.toLocaleString()}
+                      KSh {(product.basePrice || product.retailPrice).toLocaleString()}
                     </p>
                   </button>
                 ))}
@@ -264,7 +264,7 @@ export function PointOfSale() {
 
             <div className="space-y-3">
               <Label>Payment Method</Label>
-              <RadioGroup value={paymentMethod} onValueChange={(v) => setPaymentMethod(v as PaymentMethod)}>
+              <RadioGroup value={paymentMethod} onValueChange={(v: string) => setPaymentMethod(v as PaymentMethod)}>
                 <div className="flex items-center space-x-3 p-3 border rounded-lg">
                   <RadioGroupItem value="CASH" id="pos-cash" />
                   <Label htmlFor="pos-cash" className="flex-1 cursor-pointer flex items-center gap-2">

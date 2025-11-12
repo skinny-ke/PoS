@@ -21,13 +21,11 @@ interface ProductCardProps {
 
 export function ProductCard({ product, onClick }: ProductCardProps) {
   const { addItem } = useCart();
-  const [selectedPackaging, setSelectedPackaging] = useState<PackagingType>(
-    product.packaging[0]?.type || 'SINGLE'
-  );
+  const [selectedPackaging, setSelectedPackaging] = useState<PackagingType>('SINGLE');
 
   const getPackagingPrice = () => {
-    const pkg = product.packaging.find((p) => p.type === selectedPackaging);
-    return pkg ? pkg.pricePerPackage : product.basePrice;
+    const pkg = product.packaging?.find((p) => p.type === selectedPackaging);
+    return pkg ? pkg.pricePerPackage : product.basePrice || product.retailPrice;
   };
 
   const getPackagingLabel = (type: PackagingType) => {
@@ -37,6 +35,8 @@ export function ProductCard({ product, onClick }: ProductCardProps) {
       SACHET: 'Sachet',
       OUTER: 'Outer',
       SINGLE: 'Single Unit',
+      SACK: 'Sack',
+      CRATE: 'Crate',
     };
     return labels[type];
   };
@@ -58,7 +58,7 @@ export function ProductCard({ product, onClick }: ProductCardProps) {
           {product.featured && (
             <Badge className="absolute top-2 right-2 bg-green-600">Featured</Badge>
           )}
-          {product.stock < 50 && (
+          {product.stock && product.stock < 50 && (
             <Badge variant="destructive" className="absolute top-2 left-2">
               Low Stock
             </Badge>
@@ -81,12 +81,15 @@ export function ProductCard({ product, onClick }: ProductCardProps) {
         </CardContent>
       </div>
       <CardFooter className="p-4 pt-0 flex gap-2">
-        <Select value={selectedPackaging} onValueChange={(value) => setSelectedPackaging(value as PackagingType)}>
+        <Select
+          value={selectedPackaging}
+          onValueChange={(value) => setSelectedPackaging(value as PackagingType)}
+        >
           <SelectTrigger className="flex-1" onClick={(e) => e.stopPropagation()}>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {product.packaging.map((pkg) => (
+            {product.packaging?.map((pkg) => (
               <SelectItem key={pkg.type} value={pkg.type}>
                 {getPackagingLabel(pkg.type)} ({pkg.unitsPerPackage} units)
               </SelectItem>

@@ -2,8 +2,66 @@
 export type UserRole = 'CASHIER' | 'MANAGER' | 'ADMIN'
 export type PaymentStatus = 'PENDING' | 'COMPLETED' | 'FAILED' | 'REFUNDED'
 export type PaymentMethod = 'CASH' | 'MPESA' | 'CARD' | 'SPLIT'
-export type SaleStatus = 'COMPLETED' | 'VOID' | 'REFUNDED'
+export type OrderStatus = 'PENDING' | 'CONFIRMED' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED'
 export type VATStatus = 'INCLUSIVE' | 'EXCLUSIVE' | 'NONE'
+export type SaleStatus = 'COMPLETED' | 'VOID' | 'REFUNDED'
+export type PackagingType = 'SINGLE' | 'BALE' | 'CARTON' | 'SACK' | 'CRATE' | 'SACHET' | 'OUTER'
+
+// Kenya's 47 Counties
+export const KENYAN_COUNTIES = [
+  { code: '001', name: 'Mombasa' },
+  { code: '002', name: 'Kwale' },
+  { code: '003', name: 'Kilifi' },
+  { code: '004', name: 'Tana River' },
+  { code: '005', name: 'Lamu' },
+  { code: '006', name: 'Taita-Taveta' },
+  { code: '007', name: 'Garissa' },
+  { code: '008', name: 'Wajir' },
+  { code: '009', name: 'Mandera' },
+  { code: '010', name: 'Marsabit' },
+  { code: '011', name: 'Isiolo' },
+  { code: '012', name: 'Meru' },
+  { code: '013', name: 'Tharaka-Nithi' },
+  { code: '014', name: 'Embu' },
+  { code: '015', name: 'Machakos' },
+  { code: '016', name: 'Makueni' },
+  { code: '017', name: 'Nyandarua' },
+  { code: '018', name: 'Nyeri' },
+  { code: '019', name: 'Kirinyaga' },
+  { code: '020', name: 'Murang\'a' },
+  { code: '021', name: 'Kiambu' },
+  { code: '022', name: 'Turkana' },
+  { code: '023', name: 'West Pokot' },
+  { code: '024', name: 'Samburu' },
+  { code: '025', name: 'Trans-Nzoia' },
+  { code: '026', name: 'Uasin Gishu' },
+  { code: '027', name: 'Elgeyo-Marakwet' },
+  { code: '028', name: 'Nandi' },
+  { code: '029', name: 'Baringo' },
+  { code: '030', name: 'Laikipia' },
+  { code: '031', name: 'Nakuru' },
+  { code: '032', name: 'Narok' },
+  { code: '033', name: 'Kajiado' },
+  { code: '034', name: 'Kericho' },
+  { code: '035', name: 'Bomet' },
+  { code: '036', name: 'Kakamega' },
+  { code: '037', name: 'Vihiga' },
+  { code: '038', name: 'Bungoma' },
+  { code: '039', name: 'Busia' },
+  { code: '040', name: 'Siaya' },
+  { code: '041', name: 'Kisumu' },
+  { code: '042', name: 'Homa Bay' },
+  { code: '043', name: 'Migori' },
+  { code: '044', name: 'Kisii' },
+  { code: '045', name: 'Nyamira' },
+  { code: '046', name: 'Nairobi City' },
+] as const;
+
+export type CountyCode = typeof KENYAN_COUNTIES[number]['code'];
+export type CountyName = typeof KENYAN_COUNTIES[number]['name'];
+
+// Tax rates
+export const VAT_RATE = 0.16; // 16% VAT in Kenya
 
 // User types
 export interface User {
@@ -36,6 +94,16 @@ export interface Product {
   vatStatus: VATStatus
   isActive: boolean
   imageUrl?: string
+  image?: string
+  stock?: number
+  basePrice?: number
+  featured?: boolean
+  supplierName?: string
+  packaging?: Array<{
+    type: PackagingType
+    pricePerPackage: number
+    unitsPerPackage: number
+  }>
   createdAt: Date
   updatedAt: Date
   category?: Category
@@ -78,7 +146,37 @@ export interface WholesaleTier {
   product?: Product
 }
 
-// Sale types
+// Order types (for customer orders)
+export interface OrderItem {
+  product: Product
+  quantity: number
+  packagingType: string
+  pricePerUnit: number
+}
+
+export interface Order {
+  id: string
+  userId: string
+  items: OrderItem[]
+  subtotal: number
+  vat: number
+  deliveryFee: number
+  total: number
+  status: OrderStatus
+  paymentMethod: PaymentMethod
+  paymentStatus: PaymentStatus
+  deliveryAddress: {
+    county: string
+    town: string
+    streetAddress: string
+    phone: string
+  }
+  mpesaTransactionCode?: string
+  createdAt: Date
+  updatedAt: Date
+}
+
+// Sale types (for POS transactions)
 export interface Sale {
   id: string
   saleNumber: string
@@ -185,6 +283,8 @@ export interface CartItem {
   discountAmount: number
   taxAmount: number
   wholesaleTier?: WholesaleTier
+  packagingType?: PackagingType
+  unitsPerPackage?: number
 }
 
 export interface Cart {

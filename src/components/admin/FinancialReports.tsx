@@ -42,7 +42,7 @@ import {
 } from 'recharts';
 import { mockOrders, mockSalesData, mockProductPerformance } from '../../lib/admin-mock-data';
 import { VAT_RATE } from '../../types';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 
 export function FinancialReports() {
   const [period, setPeriod] = useState<'week' | 'month' | 'year'>('month');

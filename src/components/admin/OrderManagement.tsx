@@ -28,7 +28,7 @@ import {
 } from '../ui/select';
 import { mockOrders } from '../../lib/admin-mock-data';
 import { Order, OrderStatus } from '../../types';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 
 export function OrderManagement() {
   const [orders, setOrders] = useState(mockOrders);
@@ -229,7 +229,7 @@ export function OrderManagement() {
       </Card>
 
       {/* Order Details Dialog */}
-      <Dialog open={!!selectedOrder} onOpenChange={(open) => !open && setSelectedOrder(null)}>
+      <Dialog open={!!selectedOrder} onOpenChange={(open: boolean) => !open && setSelectedOrder(null)}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Order Details - {selectedOrder?.id}</DialogTitle>

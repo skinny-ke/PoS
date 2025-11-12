@@ -30,7 +30,7 @@ import {
 } from '../ui/select';
 import { mockEmployees, Employee } from '../../lib/admin-mock-data';
 import { KENYAN_COUNTIES } from '../../types';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 
 export function EmployeeManagement() {
   const [employees, setEmployees] = useState(mockEmployees);

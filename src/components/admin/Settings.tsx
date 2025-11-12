@@ -7,7 +7,7 @@ import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
 import { Separator } from '../ui/separator';
 import { Switch } from '../ui/switch';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 
 export function Settings() {
   const [businessInfo, setBusinessInfo] = useState({
@@ -257,7 +257,7 @@ export function Settings() {
             </div>
             <Switch
               checked={notifications.lowStockAlerts}
-              onCheckedChange={(checked) =>
+              onCheckedChange={(checked: boolean) =>
                 setNotifications({ ...notifications, lowStockAlerts: checked })
               }
             />
@@ -274,7 +274,7 @@ export function Settings() {
             </div>
             <Switch
               checked={notifications.orderNotifications}
-              onCheckedChange={(checked) =>
+              onCheckedChange={(checked: boolean) =>
                 setNotifications({ ...notifications, orderNotifications: checked })
               }
             />
@@ -291,7 +291,7 @@ export function Settings() {
             </div>
             <Switch
               checked={notifications.paymentConfirmations}
-              onCheckedChange={(checked) =>
+              onCheckedChange={(checked: boolean) =>
                 setNotifications({ ...notifications, paymentConfirmations: checked })
               }
             />
@@ -308,7 +308,7 @@ export function Settings() {
             </div>
             <Switch
               checked={notifications.emailReports}
-              onCheckedChange={(checked) =>
+              onCheckedChange={(checked: boolean) =>
                 setNotifications({ ...notifications, emailReports: checked })
               }
             />

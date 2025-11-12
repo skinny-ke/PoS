@@ -31,7 +31,7 @@ import {
 } from '../ui/select';
 import { mockProducts, categories } from '../../lib/mock-data';
 import { Product } from '../../types';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
 
 export function ProductManagement() {
@@ -54,7 +54,7 @@ export function ProductManagement() {
 
   const filteredProducts = products.filter((product) =>
     product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    product.category.toLowerCase().includes(searchQuery.toLowerCase())
+    (product.category?.name || '').toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleAdd = () => {
@@ -76,11 +76,11 @@ export function ProductManagement() {
     setSelectedProduct(product);
     setFormData({
       name: product.name,
-      description: product.description,
-      category: product.category,
-      basePrice: product.basePrice,
-      stock: product.stock,
-      image: product.image,
+      description: product.description || '',
+      category: product.category?.name || '',
+      basePrice: product.basePrice || 0,
+      stock: product.stock || 0,
+      image: product.image || '',
       supplierName: product.supplierName || '',
     });
     setShowDialog(true);
@@ -98,7 +98,13 @@ export function ProductManagement() {
           p.id === selectedProduct.id
             ? {
                 ...p,
-                ...formData,
+                name: formData.name,
+                description: formData.description,
+                basePrice: formData.basePrice,
+                stock: formData.stock,
+                image: formData.image,
+                supplierName: formData.supplierName,
+                category: { id: '', name: formData.category, isActive: true, createdAt: new Date(), updatedAt: new Date() },
               }
             : p
         )
@@ -107,7 +113,23 @@ export function ProductManagement() {
     } else {
       const newProduct: Product = {
         id: `${products.length + 1}`,
-        ...formData,
+        name: formData.name,
+        description: formData.description,
+        basePrice: formData.basePrice,
+        stock: formData.stock,
+        image: formData.image,
+        supplierName: formData.supplierName,
+        categoryId: '',
+        supplierId: '',
+        costPrice: formData.basePrice * 0.7,
+        retailPrice: formData.basePrice,
+        stockQuantity: formData.stock,
+        minStockLevel: 10,
+        maxStockLevel: 1000,
+        vatStatus: 'INCLUSIVE',
+        isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
         packaging: [
           { type: 'CARTON', unitsPerPackage: 12, pricePerPackage: formData.basePrice * 11 },
           { type: 'SINGLE', unitsPerPackage: 1, pricePerPackage: formData.basePrice },
@@ -126,7 +148,7 @@ export function ProductManagement() {
     }
   };
 
-  const lowStockProducts = products.filter((p) => p.stock < 100);
+  const lowStockProducts = products.filter((p) => (p.stock || 0) < 100);
 
   return (
     <div className="space-y-6">
@@ -152,7 +174,7 @@ export function ProductManagement() {
         <Card>
           <CardContent className="pt-6">
             <div className="text-2xl text-green-600">
-              {products.filter((p) => p.stock > 100).length}
+              {products.filter((p) => (p.stock || 0) > 100).length}
             </div>
             <p className="text-xs text-muted-foreground">In Stock</p>
           </CardContent>
@@ -227,13 +249,13 @@ export function ProductManagement() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline">{product.category}</Badge>
+                      <Badge variant="outline">{product.category?.name}</Badge>
                     </TableCell>
-                    <TableCell>KSh {product.basePrice.toLocaleString()}</TableCell>
+                    <TableCell>KSh {(product.basePrice || 0).toLocaleString()}</TableCell>
                     <TableCell>
                       <Badge
-                        variant={product.stock > 100 ? 'default' : 'destructive'}
-                        className={product.stock > 100 ? 'bg-green-600' : ''}
+                        variant={(product.stock || 0) > 100 ? 'default' : 'destructive'}
+                        className={(product.stock || 0) > 100 ? 'bg-green-600' : ''}
                       >
                         {product.stock} units
                       </Badge>
