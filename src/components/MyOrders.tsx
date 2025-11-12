@@ -12,7 +12,7 @@ import {
   DialogTitle,
 } from './ui/dialog';
 import { mockOrders } from '../lib/admin-mock-data';
-import { Order, OrderStatus } from '../types';
+import { Sale } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 
 export function MyOrders() {

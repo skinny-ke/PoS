@@ -1,12 +1,13 @@
+"use client";
+
 import React, { createContext, useContext, useState, useCallback } from 'react';
-import { CartItem, Product, PackagingType, VAT_RATE } from '../types';
-import { toast } from 'sonner@2.0.3';
+import { CartItem, Product } from '../types';
 
 interface CartContextType {
   items: CartItem[];
-  addItem: (product: Product, quantity: number, packagingType: PackagingType) => void;
-  removeItem: (productId: string, packagingType: PackagingType) => void;
-  updateQuantity: (productId: string, packagingType: PackagingType, quantity: number) => void;
+  addItem: (product: Product, quantity: number) => void;
+  removeItem: (productId: string) => void;
+  updateQuantity: (productId: string, quantity: number) => void;
   clearCart: () => void;
   subtotal: number;
   vat: number;
@@ -19,49 +20,56 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
 
-  const addItem = useCallback((product: Product, quantity: number, packagingType: PackagingType) => {
+  const addItem = useCallback((product: Product, quantity: number) => {
     setItems((prevItems) => {
       const existingItem = prevItems.find(
-        (item) => item.product.id === product.id && item.packagingType === packagingType
+        (item) => item.product.id === product.id
       );
 
       if (existingItem) {
-        toast.success('Updated cart quantity');
         return prevItems.map((item) =>
-          item.product.id === product.id && item.packagingType === packagingType
+          item.product.id === product.id
             ? { ...item, quantity: item.quantity + quantity }
             : item
         );
       }
 
-      const packaging = product.packaging.find((p) => p.type === packagingType);
-      const pricePerUnit = packaging ? packaging.pricePerPackage : product.basePrice;
+      const unitPrice = product.retailPrice;
 
-      toast.success('Added to cart');
-      return [...prevItems, { product, quantity, packagingType, pricePerUnit }];
+      return [...prevItems, {
+        product,
+        quantity,
+        unitPrice,
+        totalPrice: unitPrice * quantity,
+        discountAmount: 0,
+        taxAmount: 0
+      }];
     });
   }, []);
 
-  const removeItem = useCallback((productId: string, packagingType: PackagingType) => {
-    setItems((prevItems) => 
+  const removeItem = useCallback((productId: string) => {
+    setItems((prevItems) =>
       prevItems.filter(
-        (item) => !(item.product.id === productId && item.packagingType === packagingType)
+        (item) => item.product.id !== productId
       )
     );
-    toast.success('Removed from cart');
   }, []);
 
   const updateQuantity = useCallback(
-    (productId: string, packagingType: PackagingType, quantity: number) => {
+    (productId: string, quantity: number) => {
       if (quantity <= 0) {
-        removeItem(productId, packagingType);
+        removeItem(productId);
         return;
       }
 
       setItems((prevItems) =>
         prevItems.map((item) =>
-          item.product.id === productId && item.packagingType === packagingType
-            ? { ...item, quantity }
+          item.product.id === productId
+            ? {
+                ...item,
+                quantity,
+                totalPrice: item.unitPrice * quantity
+              }
             : item
         )
       );
@@ -71,11 +79,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const clearCart = useCallback(() => {
     setItems([]);
-    toast.success('Cart cleared');
   }, []);
 
-  const subtotal = items.reduce((sum, item) => sum + item.pricePerUnit * item.quantity, 0);
-  const vat = subtotal * VAT_RATE;
+  const subtotal = items.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0);
+  const vatRate = 0.16; // 16% VAT
+  const vat = subtotal * vatRate;
   const total = subtotal + vat;
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 

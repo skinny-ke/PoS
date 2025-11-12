@@ -41,8 +41,8 @@ export function Header({ onCartClick, onSearchChange, searchQuery, onOrdersClick
             <div className="flex items-center gap-2">
               <User className="w-4 h-4" />
               <div className="text-sm">
-                <p>{user?.name || 'Guest'}</p>
-                <p className="text-muted-foreground text-xs">{user?.phone || ''}</p>
+                <p>{user?.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : 'Guest'}</p>
+                <p className="text-muted-foreground text-xs">{user?.email || ''}</p>
               </div>
             </div>
           </div>

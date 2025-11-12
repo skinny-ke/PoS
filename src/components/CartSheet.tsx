@@ -22,17 +22,6 @@ interface CartSheetProps {
 export function CartSheet({ open, onOpenChange, onCheckout }: CartSheetProps) {
   const { items, removeItem, updateQuantity, subtotal, vat, total, clearCart } = useCart();
 
-  const getPackagingLabel = (type: string) => {
-    const labels: Record<string, string> = {
-      CARTON: 'Carton',
-      BALE: 'Bale',
-      SACHET: 'Sachet',
-      OUTER: 'Outer',
-      SINGLE: 'Single',
-    };
-    return labels[type] || type;
-  };
-
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="w-full sm:max-w-lg flex flex-col">
@@ -57,12 +46,12 @@ export function CartSheet({ open, onOpenChange, onCheckout }: CartSheetProps) {
               <div className="space-y-4 py-4">
                 {items.map((item) => (
                   <div
-                    key={`${item.product.id}-${item.packagingType}`}
+                    key={item.product.id}
                     className="flex gap-4 p-4 border rounded-lg"
                   >
                     <div className="w-20 h-20 rounded overflow-hidden bg-muted flex-shrink-0">
                       <ImageWithFallback
-                        src={item.product.image}
+                        src={item.product.imageUrl || ''}
                         alt={item.product.name}
                         className="w-full h-full object-cover"
                       />
@@ -70,10 +59,10 @@ export function CartSheet({ open, onOpenChange, onCheckout }: CartSheetProps) {
                     <div className="flex-1 min-w-0">
                       <h4 className="line-clamp-1">{item.product.name}</h4>
                       <Badge variant="secondary" className="mt-1">
-                        {getPackagingLabel(item.packagingType)}
+                        {item.product.category?.name || 'Product'}
                       </Badge>
                       <p className="mt-2 text-green-600">
-                        KSh {(item.pricePerUnit * item.quantity).toLocaleString()}
+                        KSh {(item.unitPrice * item.quantity).toLocaleString()}
                       </p>
                     </div>
                     <div className="flex flex-col items-end justify-between">
@@ -81,7 +70,7 @@ export function CartSheet({ open, onOpenChange, onCheckout }: CartSheetProps) {
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8"
-                        onClick={() => removeItem(item.product.id, item.packagingType)}
+                        onClick={() => removeItem(item.product.id)}
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>
@@ -93,7 +82,6 @@ export function CartSheet({ open, onOpenChange, onCheckout }: CartSheetProps) {
                           onClick={() =>
                             updateQuantity(
                               item.product.id,
-                              item.packagingType,
                               item.quantity - 1
                             )
                           }
@@ -108,7 +96,6 @@ export function CartSheet({ open, onOpenChange, onCheckout }: CartSheetProps) {
                           onClick={() =>
                             updateQuantity(
                               item.product.id,
-                              item.packagingType,
                               item.quantity + 1
                             )
                           }

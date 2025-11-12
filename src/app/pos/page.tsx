@@ -47,7 +47,11 @@ export default async function POSPage() {
           </div>
         </header>
 
-        <POSRegister user={dbUser} />
+        <POSRegister user={{
+          ...dbUser,
+          firstName: dbUser.firstName || undefined,
+          lastName: dbUser.lastName || undefined
+        }} />
       </div>
     </div>
   )

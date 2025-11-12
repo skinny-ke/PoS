@@ -22,8 +22,8 @@ import {
 import { Textarea } from './ui/textarea';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
-import { KENYAN_COUNTIES, PaymentMethod } from '../types';
-import { toast } from 'sonner@2.0.3';
+import { PaymentMethod } from '../types';
+import { toast } from 'sonner';
 
 interface CheckoutModalProps {
   open: boolean;
@@ -38,15 +38,15 @@ export function CheckoutModal({ open, onOpenChange }: CheckoutModalProps) {
   const [deliveryFee] = useState(500); // Fixed delivery fee for demo
   
   // Form state
-  const [county, setCounty] = useState(user?.county || '');
-  const [town, setTown] = useState(user?.town || '');
+  const [county, setCounty] = useState('');
+  const [town, setTown] = useState('');
   const [streetAddress, setStreetAddress] = useState('');
-  const [phone, setPhone] = useState(user?.phone || '');
-  const [mpesaPhone, setMpesaPhone] = useState(user?.mpesaPhone || '');
+  const [phone, setPhone] = useState('');
+  const [mpesaPhone, setMpesaPhone] = useState('');
   const [additionalInfo, setAdditionalInfo] = useState('');
 
   const finalTotal = total + deliveryFee;
-  const selectedCounty = KENYAN_COUNTIES.find((c) => c.name === county);
+  const counties = ['Nairobi', 'Mombasa', 'Kisumu', 'Nakuru', 'Eldoret', 'Other'];
 
   const handleDeliverySubmit = () => {
     if (!county || !town || !streetAddress || !phone) {
@@ -80,8 +80,8 @@ export function CheckoutModal({ open, onOpenChange }: CheckoutModalProps) {
     onOpenChange(false);
     setTimeout(() => {
       setStep('details');
-      setCounty(user?.county || '');
-      setTown(user?.town || '');
+      setCounty('');
+      setTown('');
       setStreetAddress('');
       setAdditionalInfo('');
     }, 300);
@@ -115,9 +115,9 @@ export function CheckoutModal({ open, onOpenChange }: CheckoutModalProps) {
                     <SelectValue placeholder="Select county" />
                   </SelectTrigger>
                   <SelectContent>
-                    {KENYAN_COUNTIES.map((c) => (
-                      <SelectItem key={c.name} value={c.name}>
-                        {c.name}
+                    {counties.map((c) => (
+                      <SelectItem key={c} value={c}>
+                        {c}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -131,7 +131,7 @@ export function CheckoutModal({ open, onOpenChange }: CheckoutModalProps) {
                     <SelectValue placeholder="Select town" />
                   </SelectTrigger>
                   <SelectContent>
-                    {selectedCounty?.towns.map((t) => (
+                    {['City Center', 'Westlands', 'Karen', 'Eastlands', 'Other'].map((t) => (
                       <SelectItem key={t} value={t}>
                         {t}
                       </SelectItem>
@@ -206,7 +206,7 @@ export function CheckoutModal({ open, onOpenChange }: CheckoutModalProps) {
 
         {step === 'payment' && (
           <div className="space-y-4">
-            <RadioGroup value={paymentMethod} onValueChange={(v) => setPaymentMethod(v as PaymentMethod)}>
+            <RadioGroup value={paymentMethod} onValueChange={(v: string) => setPaymentMethod(v as PaymentMethod)}>
               <div className="space-y-3">
                 <div className="flex items-center space-x-3 p-4 border rounded-lg cursor-pointer hover:bg-muted">
                   <RadioGroupItem value="MPESA" id="mpesa" />
