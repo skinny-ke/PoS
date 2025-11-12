@@ -1,0 +1,150 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+    --primary: 240 9% 7%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 240 5.9% 10%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 240 5.9% 10%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 240 4.9% 83.9%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* POS-specific styles */
+.pos-container {
+  @apply min-h-screen bg-gray-50 dark:bg-gray-900;
+}
+
+.pos-grid {
+  @apply grid grid-cols-1 lg:grid-cols-3 gap-6;
+}
+
+/* Receipt printer styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  .receipt {
+    @apply text-black bg-white;
+    font-size: 12px;
+    line-height: 1.2;
+    width: 58mm; /* or 80mm for wider printers */
+  }
+}
+
+/* PWA styles */
+.offline-indicator {
+  @apply fixed top-0 left-0 right-0 bg-yellow-500 text-white text-center py-2 z-50;
+}
+
+/* Kenya flag colors */
+.kenya-red {
+  @apply bg-kenya-red;
+}
+
+.kenya-green {
+  @apply bg-kenya-green;
+}
+
+/* Animation for real-time updates */
+@keyframes update-pulse {
+  0% { @apply bg-green-100; }
+  50% { @apply bg-green-200; }
+  100% { @apply bg-green-100; }
+}
+
+.update-flash {
+  animation: update-pulse 0.5s ease-in-out;
+}
+
+/* POS register specific styles */
+.pos-keypad {
+  @apply grid grid-cols-3 gap-2;
+}
+
+.pos-keypad button {
+  @apply h-12 text-lg font-semibold rounded-lg transition-colors;
+}
+
+.pos-keypad .number {
+  @apply bg-white dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700;
+}
+
+.pos-keypad .operation {
+  @apply bg-blue-500 text-white hover:bg-blue-600;
+}
+
+.pos-keypad .clear {
+  @apply bg-red-500 text-white hover:bg-red-600;
+}
+
+/* Custom scrollbar for POS */
+.pos-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e0 #f7fafc;
+}
+
+.pos-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.pos-scroll::-webkit-scrollbar-track {
+  @apply bg-gray-100;
+}
+
+.pos-scroll::-webkit-scrollbar-thumb {
+  @apply bg-gray-400 rounded-full;
+}
+
+.pos-scroll::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-500;
+}

@@ -1,0 +1,323 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User roles enum
+enum UserRole {
+  CASHIER
+  MANAGER
+  ADMIN
+}
+
+// Payment status enum
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+// Payment method enum
+enum PaymentMethod {
+  CASH
+  MPESA
+  CARD
+  SPLIT
+}
+
+// Sale status enum
+enum SaleStatus {
+  COMPLETED
+  VOID
+  REFUNDED
+}
+
+// VAT status enum
+enum VATStatus {
+  INCLUSIVE
+  EXCLUSIVE
+  NONE
+}
+
+model User {
+  id        String   @id @default(cuid())
+  clerkId   String   @unique
+  email     String   @unique
+  firstName String?
+  lastName  String?
+  role      UserRole @default(CASHIER)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  sales         Sale[]
+  stockEntries  StockEntry[]
+  refunds       Refund[]
+  auditLogs     AuditLog[]
+
+  @@index([clerkId])
+  @@index([email])
+}
+
+model Category {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  products Product[]
+
+  @@index([name])
+}
+
+model Supplier {
+  id            String   @id @default(cuid())
+  name          String
+  contactPerson String?
+  email         String?
+  phone         String?
+  address       String?
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  products    Product[]
+  stockEntries StockEntry[]
+
+  @@index([name])
+}
+
+model Product {
+  id              String    @id @default(cuid())
+  name            String
+  description     String?
+  barcode         String?   @unique
+  sku             String?   @unique
+  categoryId      String
+  supplierId      String?
+  costPrice       Decimal   @db.Decimal(10, 2)
+  retailPrice     Decimal   @db.Decimal(10, 2)
+  wholesalePrice  Decimal?  @db.Decimal(10, 2)
+  stockQuantity   Int       @default(0)
+  minStockLevel   Int       @default(5)
+  maxStockLevel   Int       @default(100)
+  vatStatus       VATStatus @default(NONE)
+  isActive        Boolean   @default(true)
+  imageUrl        String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relations
+  category       Category       @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  supplier       Supplier?      @relation(fields: [supplierId], references: [id], onDelete: SetNull)
+  wholesaleTiers WholesaleTier[]
+  stockEntries   StockEntry[]
+  saleItems      SaleItem[]
+  auditLogs      AuditLog[]
+
+  @@index([barcode])
+  @@index([sku])
+  @@index([name])
+  @@index([categoryId])
+}
+
+model WholesaleTier {
+  id         String   @id @default(cuid())
+  productId  String
+  minQuantity Int
+  maxQuantity Int?
+  price      Decimal  @db.Decimal(10, 2)
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+
+  // Relations
+  product Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  saleItems SaleItem[]
+
+  @@index([productId])
+  @@unique([productId, minQuantity])
+}
+
+model StockEntry {
+  id              String   @id @default(cuid())
+  productId       String
+  quantity        Int
+  costPrice       Decimal  @db.Decimal(10, 2)
+  totalCost       Decimal  @db.Decimal(10, 2)
+  supplierId      String?
+  userId          String
+  referenceNumber String?
+  notes           String?
+  createdAt       DateTime @default(now())
+
+  // Relations
+  product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  supplier Supplier? @relation(fields: [supplierId], references: [id], onDelete: SetNull)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@index([productId])
+  @@index([createdAt])
+}
+
+model Sale {
+  id                String      @id @default(cuid())
+  saleNumber        String      @unique
+  userId            String
+  totalAmount       Decimal     @db.Decimal(10, 2)
+  subtotalAmount    Decimal     @db.Decimal(10, 2)
+  discountAmount    Decimal     @default(0) @db.Decimal(10, 2)
+  taxAmount         Decimal     @default(0) @db.Decimal(10, 2)
+  paidAmount        Decimal     @db.Decimal(10, 2)
+  changeAmount      Decimal     @default(0) @db.Decimal(10, 2)
+  paymentMethod     PaymentMethod
+  paymentStatus     PaymentStatus @default(PENDING)
+  status            SaleStatus   @default(COMPLETED)
+  customerName      String?
+  customerPhone     String?
+  receiptPrinted    Boolean      @default(false)
+  offlineId         String?      // For offline sales sync
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  // Relations
+  user         User         @relation(fields: [userId], references: [id], onDelete: Restrict)
+  saleItems    SaleItem[]
+  payments     Payment[]
+  refunds      Refund[]
+
+  @@index([saleNumber])
+  @@index([userId])
+  @@index([createdAt])
+  @@index([paymentStatus])
+  @@index([offlineId])
+}
+
+model SaleItem {
+  id              String   @id @default(cuid())
+  saleId          String
+  productId       String
+  quantity        Int
+  unitPrice       Decimal  @db.Decimal(10, 2)
+  totalPrice      Decimal  @db.Decimal(10, 2)
+  discountAmount  Decimal  @default(0) @db.Decimal(10, 2)
+  taxAmount       Decimal  @default(0) @db.Decimal(10, 2)
+  wholesaleTierId String?
+  createdAt       DateTime @default(now())
+
+  // Relations
+  sale           Sale           @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  product        Product        @relation(fields: [productId], references: [id], onDelete: Restrict)
+  wholesaleTier  WholesaleTier? @relation(fields: [wholesaleTierId], references: [id], onDelete: SetNull)
+
+  @@index([saleId])
+  @@index([productId])
+}
+
+model Payment {
+  id            String        @id @default(cuid())
+  saleId        String
+  amount        Decimal       @db.Decimal(10, 2)
+  method        PaymentMethod
+  status        PaymentStatus @default(PENDING)
+  reference     String?
+  mpesaMerchantId String?
+  mpesaCheckoutRequestId String?
+  mpesaTimestamp String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  // Relations
+  sale Sale @relation(fields: [saleId], references: [id], onDelete: Cascade)
+
+  @@index([saleId])
+  @@index([mpesaCheckoutRequestId])
+}
+
+model Refund {
+  id              String      @id @default(cuid())
+  saleId          String
+  userId          String
+  totalRefundAmount Decimal   @db.Decimal(10, 2)
+  reason          String
+  status          String      @default("PENDING")
+  createdAt       DateTime    @default(now())
+
+  // Relations
+  sale Sale @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@index([saleId])
+  @@index([userId])
+}
+
+model County {
+  id       String   @id @default(cuid())
+  name     String   @unique
+  code     String   @unique
+  isActive Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  @@index([name])
+  @@index([code])
+}
+
+model Settings {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String
+  type  String @default("string") // string, number, boolean, json
+  description String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model OfflineSyncQueue {
+  id         String   @id @default(cuid())
+  type       String   // 'sale', 'stock_entry', 'refund'
+  data       String   // JSON string
+  retryCount Int      @default(0)
+  maxRetries Int      @default(3)
+  status     String   @default("pending") // pending, processing, completed, failed
+  error      String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([status])
+  @@index([type])
+  @@index([createdAt])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String?
+  productId  String?
+  action     String   // 'create', 'update', 'delete', 'sale', 'refund', 'stock_adjustment'
+  entityType String   // 'Product', 'Sale', 'User', etc.
+  entityId   String
+  oldValues  String?  // JSON string
+  newValues  String?  // JSON string
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  // Relations
+  user    User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  product Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+}
