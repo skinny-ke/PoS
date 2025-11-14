@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import * as RechartsPrimitive from "recharts@2.15.2";
+import * as RechartsPrimitive from "recharts"; // ✅ FIXED IMPORT
 
 import { cn } from "./utils";
 
@@ -304,7 +304,6 @@ function ChartLegendContent({
   );
 }
 
-// Helper to extract item config from a payload.
 function getPayloadConfigFromPayload(
   config: ChartConfig,
   payload: unknown,
@@ -351,3 +350,4 @@ export {
   ChartLegendContent,
   ChartStyle,
 };
+
